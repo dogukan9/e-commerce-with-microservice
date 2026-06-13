@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  shopwise-user-db:
+    image: postgres:15
+    container_name: shopwise-user-db
+    environment:
+      POSTGRES_DB: shopwise_user_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - user_db_data:/var/lib/postgresql/data
+
+  shopwise-product-db:
+    image: postgres:15
+    container_name: shopwise-product-db
+    environment:
+      POSTGRES_DB: shopwise_product_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - product_db_data:/var/lib/postgresql/data
+
+  shopwise-order-db:
+    image: postgres:15
+    container_name: shopwise-order-db
+    environment:
+      POSTGRES_DB: shopwise_order_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5434:5432"
+    volumes:
+      - order_db_data:/var/lib/postgresql/data
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+  redis:
+    image: redis:7
+    container_name: shopwise-redis
+    ports:
+      - "6379:6379"
+volumes:
+    user_db_data:
+    product_db_data:
+    order_db_data:

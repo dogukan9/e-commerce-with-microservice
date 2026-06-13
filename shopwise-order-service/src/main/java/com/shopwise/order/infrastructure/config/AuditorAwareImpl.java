@@ -1,0 +1,31 @@
+package com.shopwise.order.infrastructure.config;
+
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.AuditorAware;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+
+import java.util.Optional;
+
+@Slf4j
+@Component("auditorAwareImpl")
+public class AuditorAwareImpl implements AuditorAware<Long> {
+
+    @Override
+    public Optional<Long> getCurrentAuditor() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null ||
+                !authentication.isAuthenticated() ||
+                "anonymousUser".equals(authentication.getName())) {
+            return Optional.empty();
+        }
+
+        try {
+            return Optional.of(Long.valueOf(authentication.getName()));
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
+}
